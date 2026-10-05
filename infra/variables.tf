@@ -4,7 +4,7 @@ variable "project_id" {
 }
 
 variable "billing_account_id" {
-  description = "Billing account ID in the form billingAccounts/XXXXXX-XXXXXX-XXXXXX (find it on the Cloud Console Billing page)."
+  description = "Billing account ID in the form billingAccounts/010C48-E97F9D-6D434E (find it on the Cloud Console Billing page)."
   type        = string
 }
 

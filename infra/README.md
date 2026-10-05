@@ -43,11 +43,17 @@ cp terraform.tfvars.example terraform.tfvars
 ```bash
 # Log in with the Google account that owns the project:
 gcloud auth application-default login
+gcloud auth application-default set-quota-project <your-project-id>
 
 terraform init     # downloads the Google provider (no credentials needed)
 terraform plan     # DRY RUN — shows exactly what will be created. Review it.
 terraform apply    # type "yes" — creates datasets, service account, IAM, budget
 ```
+
+The Terraform provider also explicitly uses `project_id` as its quota project.
+The authenticated account must have `serviceusage.services.use` on that project
+(for example, through `roles/serviceusage.serviceUsageConsumer`), and
+`billingbudgets.googleapis.com` must be enabled there.
 
 Expected result (~10 resources):
 

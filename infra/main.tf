@@ -28,20 +28,32 @@ terraform {
 }
 
 provider "google" {
-  project = var.project_id
-  region  = var.region
+  project               = var.project_id
+  region                = var.region
+  billing_project       = var.project_id
+  user_project_override = true
 }
 
 # ---- APIs ----------------------------------------------------
+# Bootstrap first: managing google_project_service resources requires the
+# Cloud Resource Manager API itself, so it gets enabled before the others.
+resource "google_project_service" "cloudresourcemanager" {
+  service            = "cloudresourcemanager.googleapis.com"
+  disable_on_destroy = false
+}
+
 resource "google_project_service" "bigquery" {
   service            = "bigquery.googleapis.com"
   disable_on_destroy = false
+  depends_on         = [google_project_service.cloudresourcemanager]
 }
 
 resource "google_project_service" "billing_budgets" {
   service            = "billingbudgets.googleapis.com"
   disable_on_destroy = false
+  depends_on         = [google_project_service.cloudresourcemanager]
 }
+
 
 # ---- Datasets ------------------------------------------------
 # dbt will create tables inside these; Terraform only owns the containers.
@@ -97,7 +109,7 @@ resource "google_monitoring_notification_channel" "email" {
 }
 
 resource "google_billing_budget" "zero_spend_guardrail" {
-  billing_account = var.billing_account_id
+  billing_account = trimprefix(var.billing_account_id, "billingAccounts/")
   display_name    = "HCAHPS $1 guardrail"
 
   budget_filter {
