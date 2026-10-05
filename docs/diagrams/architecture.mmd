@@ -1,0 +1,56 @@
+flowchart TB
+    subgraph SRC["Sources (public)"]
+        CMS1["data.cms.gov<br/>HCAHPS dgck-syfz"]
+        CMS2["data.cms.gov<br/>Outcomes ynj2-r877"]
+    end
+
+    subgraph M2["M2 · Ingestion"]
+        ING["download_cms.py<br/>one command"]
+    end
+
+    subgraph RAW["Raw layer (untouched)"]
+        BQRAW[("BigQuery<br/>project.raw.*")]
+        DUCKRAW[("DuckDB<br/>warehouse/hcahps.duckdb<br/>raw.*")]
+    end
+
+    subgraph M3["M3 · dbt"]
+        STG["staging<br/>clean + rename"]
+        INT["intermediate<br/>standardize + join"]
+        MART1[("mart_patient_experience")]
+        MART2[("mart_hospital_outcomes")]
+        TEST{"dbt tests<br/>failures block downstream"}
+    end
+
+    subgraph M4["M4 · Orchestration"]
+        AIR["Airflow DAG<br/>extract → dbt run → test gate → refresh"]
+        CI["GitHub Actions CI<br/>DuckDB target, zero secrets"]
+    end
+
+    subgraph M5["M5 · AI layer"]
+        SUM["Trend summaries<br/>(Gemini API)"]
+        RAG["RAG assistant<br/>over dbt docs"]
+        ANOM["Anomaly detection<br/>spikes vs peers"]
+    end
+
+    subgraph M6["M6 · Showcase"]
+        APP["Streamlit demo"]
+    end
+
+    CMS1 --> ING
+    CMS2 --> ING
+    ING --> BQRAW
+    ING --> DUCKRAW
+    BQRAW --> STG
+    DUCKRAW --> STG
+    STG --> INT --> MART1
+    INT --> MART2
+    MART1 --> TEST
+    MART2 --> TEST
+    TEST --> AIR
+    AIR --> CI
+    MART1 --> SUM & RAG & ANOM
+    MART2 --> SUM & RAG & ANOM
+    SUM & RAG & ANOM --> APP
+
+    style RAW fill:#e8f5e9
+    style TEST fill:#fff3e0

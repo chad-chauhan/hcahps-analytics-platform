@@ -1,0 +1,36 @@
+# dbt connection profiles — EXAMPLE FILE (no secrets here)
+#
+# What this is: dbt reads this file to know how to connect to each warehouse.
+# We define TWO targets for the same models (the hybrid pattern from the M1 design):
+#   - duckdb   : local development + CI. Zero credentials.
+#   - bigquery : cloud warehouse. Needs a GCP project + service-account key.
+#
+# How to use:
+#   1. Copy this file to profiles.yml in the same folder:
+#        cp dbt/profiles.yml.example dbt/profiles.yml
+#   2. Fill in YOUR_GCP_PROJECT_ID and the path to your service-account JSON key.
+#   3. profiles.yml is git-ignored — your key path never reaches the repo.
+#   4. Run:  dbt build --target duckdb      (local)
+#            dbt build --target bigquery    (cloud)
+
+hcahps:
+  target: duckdb
+  outputs:
+    duckdb:
+      type: duckdb
+      # Path is relative to the dbt project folder (dbt/).
+      path: ../warehouse/hcahps.duckdb
+      schema: main
+      threads: 4
+
+    bigquery:
+      type: bigquery
+      method: service-account-json
+      project: YOUR_GCP_PROJECT_ID
+      # Raw tables land in dataset `raw`; dbt models build into `analytics`.
+      dataset: analytics
+      keyfile: /path/to/your/service-account.json
+      threads: 4
+      # Cost guardrail: every BigQuery job gets a label so spend is traceable.
+      labels:
+        project: hcahps-analytics-platform

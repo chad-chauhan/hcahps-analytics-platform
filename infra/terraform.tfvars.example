@@ -1,0 +1,13 @@
+# Copy this file to terraform.tfvars and fill in YOUR values.
+# terraform.tfvars is git-ignored — it never reaches the repo.
+#
+#   cp terraform.tfvars.example terraform.tfvars
+
+project_id = "hcahps-analytics" # <-- your actual GCP project ID
+
+# Find it at https://console.cloud.google.com/billing — format shown below.
+billing_account_id = "billingAccounts/XXXXXX-XXXXXX-XXXXXX" # <-- your billing account
+
+# Optional overrides (defaults are fine):
+# region      = "US"
+# alert_email = "chadch615@gmail.com"

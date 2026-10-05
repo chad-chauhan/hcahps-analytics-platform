@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Secrets — never commit these
+*.json
+!requirements*.txt
+.env
+profiles.yml
+
+# Local warehouse + raw downloads (rebuilt by `make ingest`)
+warehouse/*.duckdb
+warehouse/*.duckdb.wal
+ingestion/raw/*.csv
+
+# Terraform (state and secrets stay local)
+.terraform/
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+
+# Airflow
+dags/__pycache__/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
